@@ -66,18 +66,14 @@ void bypass_debug(bool bypass);
   */
 void output_redirect(uint16_t prio, const char *str, const char *location);
 
-#define log_printf(prio, ...)                                                \
-        extern bool _redirect_lock;                                          \
-        extern bool _bypass;                                                 \
-        if (!_redirect_lock && !_bypass) {                                   \
-            _redirect_lock = true;                                           \
-            do {                                                             \
-                extern unsigned char global_print_buf[GLOBAL_PBUF_SZ];       \
-                sprintf((char *)global_print_buf, __VA_ARGS__);              \
-                output_redirect(prio, (char *)global_print_buf, LOCATION);   \
-            } while (0);                                                     \
-            _redirect_lock = false;                                          \
-        }
+#define log_printf(prio, ...)                                            \
+    {                                                                    \
+        do {                                                             \
+            unsigned char global_print_buf[GLOBAL_PBUF_SZ];              \
+            sprintf((char *)global_print_buf, __VA_ARGS__);              \
+            output_redirect(prio, (char *)global_print_buf, LOCATION);   \
+        } while (0);                                                     \
+    }
 
 // NOTE: these will correspond to color codes in lib/Printf/debug.cpp
 enum log_levels

@@ -2,9 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-bool          _bypass = false;
-bool          _redirect_lock = false;
-unsigned char global_print_buf[GLOBAL_PBUF_SZ];
+bool _bypass = false;
 
 void bypass_debug(bool bypass)
 {
@@ -115,6 +113,7 @@ void output_redirect(uint16_t prio, const char *str, const char *location)
         header[i++] = (*location++);
     }
     header[i++] = (':');
+    header[i++] = (' ');
 #endif /* DEBUG_LOCATIONS_EN */
 
     // write log message, the header must be done at the character level because
