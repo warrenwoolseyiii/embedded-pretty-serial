@@ -51,18 +51,17 @@ static const char *log_type_str(uint16_t prio)
     return "???";
 }
 
-void output_redirect(uint16_t prio, const char *str, const char *location)
+int make_pretty_header(uint16_t prio, char *header, const char *location)
 {
     if (_bypass) {
-        return;
+        return 0;
     }
 
     uint16_t lvl = (prio & 0x0007); // determine log level from first 3 bits
     if (!(DEBUG_LVL_MASK & (1 << lvl))) {
-        return;
+        return 0;
     }
 
-    char header[GLOBAL_PBUF_SZ] = { 0 };
     int  i = 0;
 
     header[i++] = ('['); // write left bracket
@@ -116,10 +115,13 @@ void output_redirect(uint16_t prio, const char *str, const char *location)
     header[i++] = (' ');
 #endif /* DEBUG_LOCATIONS_EN */
 
-    // write log message, the header must be done at the character level because
-    // the color codes contain null terminators.
-    for (int j = 0; j < i; j++) {
-        printf("%c", header[j]);
-    }
-    printf("%s", str);
+    return i;
+
+
+    // // write log message, the header must be done at the character level because
+    // // the color codes contain null terminators.
+    // for (int j = 0; j < i; j++) {
+    //     printf("%c", header[j]);
+    // }
+    // printf("%s", str);
 }

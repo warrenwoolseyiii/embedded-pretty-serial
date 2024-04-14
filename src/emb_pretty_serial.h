@@ -61,18 +61,19 @@ void bypass_debug(bool bypass);
 /**
   * @brief Logging output redirect function, this is called internally, don't call this directly.
   * @param prio Priority of the log message.
-  * @param str String to print.
+  * @param header Pointer to the header of the log message.
   * @param location Location of the log message.
   */
-void output_redirect(uint16_t prio, const char *str, const char *location);
+int make_pretty_header(uint16_t prio, char *header, const char *location);
 
-#define log_printf(prio, ...)                                            \
-    {                                                                    \
-        do {                                                             \
-            unsigned char global_print_buf[GLOBAL_PBUF_SZ];              \
-            sprintf((char *)global_print_buf, __VA_ARGS__);              \
-            output_redirect(prio, (char *)global_print_buf, LOCATION);   \
-        } while (0);                                                     \
+#define log_printf(prio, ...)                                             \
+    {                                                                     \
+        do {                                                              \
+            unsigned char global_print_buf[GLOBAL_PBUF_SZ];               \
+            int i = make_pretty_header(prio, global_print_buf, LOCATION); \
+            sprintf((char *)global_print_buf[i], __VA_ARGS__);            \
+            /* TODO: This is where we mutex the circular buffer and write to it */ \
+        } while (0);                                                      \
     }
 
 // NOTE: these will correspond to color codes in lib/Printf/debug.cpp
