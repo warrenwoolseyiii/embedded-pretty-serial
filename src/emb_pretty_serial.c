@@ -1,8 +1,16 @@
 #include "emb_pretty_serial.h"
+#include "../deps/embedded-ring-buffer/src/emb_rb.h"
 #include <stdio.h>
 #include <string.h>
 
+uint8_t _pb_src[PRINT_RB_SIZE];
+emb_rb_t _rb;
 bool _bypass = false;
+
+void init_pretty_serial(void)
+{
+    emb_rb_init(&_rb, _pb_src, PRINT_RB_SIZE);
+}
 
 void bypass_debug(bool bypass)
 {
@@ -124,4 +132,27 @@ int make_pretty_header(uint16_t prio, char *header, const char *location)
     //     printf("%c", header[j]);
     // }
     // printf("%s", str);
+}
+
+int queue_log_message(const uint8_t *buf, int len)
+{
+    if (_bypass) {
+        return 0;
+    }
+
+    int err;
+    emb_rb_queue(&_rb, buf, len, &err);
+    return err;
+    
+}
+
+int get_log_message(uint8_t *buf, int len)
+{
+    if (_bypass) {
+        return 0;
+    }
+
+    int err;
+    int l = emb_rb_dequeue(&_rb, buf, len, &err);
+    return l;
 }

@@ -23,7 +23,22 @@ void test_thread3() {
     }
 }
 
+void print_thread() {
+    while (true) {
+        uint8_t buf[128];
+        int len = get_log_message(buf, 128);
+        for(int i = 0; i < len; i++) {
+            std::cout << buf[i];
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
 int main() {
+    init_pretty_serial();
+
+    std::thread pthread(print_thread);
+
     SYS_DBG("This is a debug message\n");
     SYS_INFO("This is an info message\n");
     SYS_OK("This is an okay message\n");
@@ -35,19 +50,13 @@ int main() {
     SYS_WARN("Uh oh a float: %f\n", 3.14);
     SYS_ERROR("And a double: %lf\n", 2.71828);
 
-    // Create a thread for test_thread1
-    std::thread t(test_thread1);
-
-    // Create a second thread for test_thread2
+    std::thread t1(test_thread1);
     std::thread t2(test_thread2);
-
-    // Create a third thread for test_thread3
     std::thread t3(test_thread3);
 
-    // Start the threads
-    t.join();
+    t1.join();
     t2.join();
     t3.join();
-
+    pthread.join();
     return 0;
 }

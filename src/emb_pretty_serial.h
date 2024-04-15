@@ -35,6 +35,7 @@ extern "C" {
 #define S2(x)              S1(x)
 
 #define GLOBAL_PBUF_SZ     512
+#define PRINT_RB_SIZE      4096
 
 // Comment this out to remove file locations
 #define DEBUG_LOCATIONS_EN 1
@@ -53,6 +54,11 @@ extern "C" {
 #endif /* DEBUG_LOCATIONS_EN */
 
 /**
+  * @brief Initialize the pretty serial module.
+  */
+void init_pretty_serial(void);
+
+/**
   * @brief Enable or dsiable run time debug print bypass.
   * @param bypass set to true to bypass debug printing, false otherwise.
   */
@@ -66,14 +72,30 @@ void bypass_debug(bool bypass);
   */
 int make_pretty_header(uint16_t prio, char *header, const char *location);
 
-#define log_printf(prio, ...)                                             \
-    {                                                                     \
-        do {                                                              \
-            unsigned char global_print_buf[GLOBAL_PBUF_SZ];               \
-            int i = make_pretty_header(prio, global_print_buf, LOCATION); \
-            sprintf((char *)global_print_buf[i], __VA_ARGS__);            \
-            /* TODO: This is where we mutex the circular buffer and write to it */ \
-        } while (0);                                                      \
+/**
+ * @brief Queue the log message to be printed.
+ * @param buf Pointer to the buffer containing the log message.
+ * @param len Length of the log message.
+ * @return 0 on success, -1 on failure.
+ */
+int queue_log_message(const uint8_t *buf, int len);
+
+/**
+ * @brief Get log message bytes to you can print them.
+ * @param buf Pointer to the buffer to store the log message.
+ * @param len Length of the buffer.
+ * @return Number of bytes copied to the buffer.
+ */
+int get_log_message(uint8_t *buf, int len);
+
+#define log_printf(prio, ...)                                                 \
+    {                                                                         \
+        do {                                                                  \
+            char global_print_buf[GLOBAL_PBUF_SZ];                            \
+            int i = make_pretty_header(prio, &global_print_buf[0], LOCATION); \
+            i += sprintf((char *)&global_print_buf[i], __VA_ARGS__);          \
+            queue_log_message((uint8_t*)global_print_buf, i);                 \
+        } while (0);                                                          \
     }
 
 // NOTE: these will correspond to color codes in lib/Printf/debug.cpp
