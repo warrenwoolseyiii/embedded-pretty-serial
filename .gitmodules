@@ -1,0 +1,3 @@
+[submodule "deps/embedded-ring-buffer"]
+	path = deps/embedded-ring-buffer
+	url = git@github.com:warrenwoolseyiii/embedded-ring-buffer.git
