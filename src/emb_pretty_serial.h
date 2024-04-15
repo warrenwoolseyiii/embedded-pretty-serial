@@ -31,45 +31,45 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
-#define S1(x)              #x
-#define S2(x)              S1(x)
+#define S1(x)    #x
+#define S2(x)    S1(x)
 
-#define GLOBAL_PBUF_SZ     512
-#define PRINT_RB_SIZE      4096
+#define GLOBAL_PBUF_SZ        512
+#define PRINT_RB_SIZE         4096
 
 // Comment this out to remove file locations
-#define DEBUG_LOCATIONS_EN 1
+#define DEBUG_LOCATIONS_EN    1
 
 // Comment this out to disable colored logs
-#define DEBUG_COLORS_EN 1
+#define DEBUG_COLORS_EN       1
 
 // Change this to allow levels
 // DEBUG | ERROR | WARN | OKAY | INFO
-#define DEBUG_LVL_MASK 0b11111
+#define DEBUG_LVL_MASK    0b11111
 
 #if DEBUG_LOCATIONS_EN
-#define LOCATION __FILE__ ":" S2(__LINE__)
+#define LOCATION          __FILE__ ":" S2(__LINE__)
 #else
-#define LOCATION NULL
+#define LOCATION          NULL
 #endif /* DEBUG_LOCATIONS_EN */
 
 /**
-  * @brief Initialize the pretty serial module.
-  */
+ * @brief Initialize the pretty serial module.
+ */
 void init_pretty_serial(void);
 
 /**
-  * @brief Enable or dsiable run time debug print bypass.
-  * @param bypass set to true to bypass debug printing, false otherwise.
-  */
+ * @brief Enable or dsiable run time debug print bypass.
+ * @param bypass set to true to bypass debug printing, false otherwise.
+ */
 void bypass_debug(bool bypass);
 
 /**
-  * @brief Logging output redirect function, this is called internally, don't call this directly.
-  * @param prio Priority of the log message.
-  * @param header Pointer to the header of the log message.
-  * @param location Location of the log message.
-  */
+ * @brief Logging output redirect function, this is called internally, don't call this directly.
+ * @param prio Priority of the log message.
+ * @param header Pointer to the header of the log message.
+ * @param location Location of the log message.
+ */
 int make_pretty_header(uint16_t prio, char *header, const char *location);
 
 /**
@@ -88,46 +88,52 @@ int queue_log_message(const uint8_t *buf, int len);
  */
 int get_log_message(uint8_t *buf, int len);
 
-#define log_printf(prio, ...)                                                 \
-    {                                                                         \
-        do {                                                                  \
-            char global_print_buf[GLOBAL_PBUF_SZ];                            \
-            int i = make_pretty_header(prio, &global_print_buf[0], LOCATION); \
-            i += sprintf((char *)&global_print_buf[i], __VA_ARGS__);          \
-            queue_log_message((uint8_t*)global_print_buf, i);                 \
-        } while (0);                                                          \
-    }
+/**
+ * @brief Get the version of the pretty serial module.
+ * @return Pointer to the version string.
+ */
+const char *pretty_ser_get_ver();
+
+#define log_printf(prio, ...)                                                    \
+        {                                                                        \
+           do {                                                                  \
+              char global_print_buf[GLOBAL_PBUF_SZ];                             \
+              int  i = make_pretty_header(prio, &global_print_buf[0], LOCATION); \
+              i += sprintf((char *)&global_print_buf[i], __VA_ARGS__);           \
+              queue_log_message((uint8_t *)global_print_buf, i);                 \
+           } while (0);                                                          \
+        }
 
 // NOTE: these will correspond to color codes in lib/Printf/debug.cpp
 enum log_levels
 {
-    LL_INFO  = 0,
-    LL_OKAY  = 1,
-    LL_WARN  = 2,
-    LL_ERROR = 3,
-    LL_DEBUG = 4
+   LL_INFO  = 0,
+   LL_OKAY  = 1,
+   LL_WARN  = 2,
+   LL_ERROR = 3,
+   LL_DEBUG = 4
 };
 
 enum log_types
 {
-    LT_SYS = 0
+   LT_SYS = 0
 };
 
-#define _MKPRI(type, level) (((LT_ ## type) << 3) + LL_ ## level)
+#define _MKPRI(type, level)    (((LT_ ## type) << 3) + LL_ ## level)
 
 #if SERIAL_EN && SYS_DEBUG_EN
-#define DBG_ASSERT(a, b) if (!(a)) {                                         \
-            SYS_ERR("\n--------------------------------------------------\n" \
-                    "Assert failed: %s\n%s\nLine %u in %s\n"                 \
-                    "--------------------------------------------------\n",  \
-                    #a, (b), __LINE__, __FILE__);                            \
-            while (true);                                                    \
+#define DBG_ASSERT(a, b)       if (!(a)) {                                  \
+           SYS_ERR("\n--------------------------------------------------\n" \
+                   "Assert failed: %s\n%s\nLine %u in %s\n"                 \
+                   "--------------------------------------------------\n",  \
+                   #a, (b), __LINE__, __FILE__);                            \
+           while (true);                                                    \
 }
-#define SYS_DBG(...)     log_printf(_MKPRI(SYS, DEBUG), __VA_ARGS__)
-#define SYS_INFO(...)    log_printf(_MKPRI(SYS, INFO), __VA_ARGS__)
-#define SYS_OK(...)      log_printf(_MKPRI(SYS, OKAY), __VA_ARGS__)
-#define SYS_WARN(...)    log_printf(_MKPRI(SYS, WARN), __VA_ARGS__)
-#define SYS_ERROR(...)   log_printf(_MKPRI(SYS, ERROR), __VA_ARGS__)
+#define SYS_DBG(...)           log_printf(_MKPRI(SYS, DEBUG), __VA_ARGS__)
+#define SYS_INFO(...)          log_printf(_MKPRI(SYS, INFO), __VA_ARGS__)
+#define SYS_OK(...)            log_printf(_MKPRI(SYS, OKAY), __VA_ARGS__)
+#define SYS_WARN(...)          log_printf(_MKPRI(SYS, WARN), __VA_ARGS__)
+#define SYS_ERROR(...)         log_printf(_MKPRI(SYS, ERROR), __VA_ARGS__)
 #else
 #define DBG_ASSERT(a, b)
 #define SYS_DBG(...)
