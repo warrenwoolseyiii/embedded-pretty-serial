@@ -1,12 +1,12 @@
-CC = g++
+CC = gcc
 CFLAGS = -Wall -Wextra -pedantic -Isrc
 LDFLAGS = -DSERIAL_EN=1 -DSYS_DEBUG_EN=1
 
-SRCDIR = ../src
+SRCDIR = ../../src
 SOURCES = $(wildcard $(SRCDIR)/*.c)
 OBJECTS = $(SOURCES:.c=.o)
 
-EMB_RBDIR = ../deps/embedded-ring-buffer/src
+EMB_RBDIR = ../../deps/embedded-ring-buffer/src
 EMB_RB_SOURCES = $(wildcard $(EMB_RBDIR)/*.c)
 EMB_RB_OBJECTS = $(EMB_RB_SOURCES:.c=.o)
 
@@ -16,7 +16,7 @@ TARGET = main
 
 all: $(TARGET)
 
-$(TARGET): main.cpp $(OBJECTS) $(EMB_RB_OBJECTS)
+$(TARGET): main.c $(OBJECTS) $(EMB_RB_OBJECTS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
 $(SRCDIR)/%.o: $(SRCDIR)/%.c

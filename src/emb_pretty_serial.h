@@ -34,14 +34,17 @@ extern "C" {
 #define S1(x)    #x
 #define S2(x)    S1(x)
 
-#define GLOBAL_PBUF_SZ        512
-#define PRINT_RB_SIZE         4096
+// Change this to change the maximum allowable string size
+#define MAX_ALLOWABLE_STR_SIZE    512
+
+// Change this to change the global print ring buffer size
+#define PRINT_RB_SIZE             4096
 
 // Comment this out to remove file locations
-#define DEBUG_LOCATIONS_EN    1
+#define DEBUG_LOCATIONS_EN        1
 
 // Comment this out to disable colored logs
-#define DEBUG_COLORS_EN       1
+#define DEBUG_COLORS_EN           1
 
 // Change this to allow levels
 // DEBUG | ERROR | WARN | OKAY | INFO
@@ -97,7 +100,7 @@ const char *pretty_ser_get_ver();
 #define log_printf(prio, ...)                                                    \
         {                                                                        \
            do {                                                                  \
-              char global_print_buf[GLOBAL_PBUF_SZ];                             \
+              char global_print_buf[MAX_ALLOWABLE_STR_SIZE];                     \
               int  i = make_pretty_header(prio, &global_print_buf[0], LOCATION); \
               i += sprintf((char *)&global_print_buf[i], __VA_ARGS__);           \
               queue_log_message((uint8_t *)global_print_buf, i);                 \

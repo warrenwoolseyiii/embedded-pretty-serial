@@ -1,6 +1,6 @@
 #include <iostream>
 #include <thread>
-#include "../src/emb_pretty_serial.h"
+#include "../../src/emb_pretty_serial.h"
 
 void test_thread1()
 {
