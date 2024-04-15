@@ -17,11 +17,9 @@ jobs:
       #if: startsWith(github.ref, 'refs/tags/v')
       run: |
         mkdir -p release/src
+        mkdir -p release/deps/embedded-ring-buffer/src
         cp src/*.c release/src
         cp src/*.h release/src
-        mkdir -p release/deps
-        mkdir -p release/deps/embedded-ring-buffer
-        mkdir -p release/deps/embedded-ring-buffer/src
         cp deps/embedded-ring-buffer/src/*.c release/deps/embedded-ring-buffer/src
         cp deps/embedded-ring-buffer/src/*.h release/deps/embedded-ring-buffer/src
         tar -czvf "release.tar.gz" release
